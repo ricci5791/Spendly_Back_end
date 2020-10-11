@@ -25,7 +25,7 @@ SECRET_KEY = '0g0)7y8uq3lz3036p+ei!*447b$*((n*$9rwel8_8(+d+8eb^j'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['spendly-student.herokuapp.com',]
 
 
 # Application definition
