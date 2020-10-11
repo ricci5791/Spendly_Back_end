@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from spendly_api import views as v
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('/', v.main_view),
+    path('', v.main_view),
 ]
