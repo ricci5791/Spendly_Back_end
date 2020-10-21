@@ -20,6 +20,7 @@ from spendly_api import views as v
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', v.main_view),
-    path('/integration', v.init_response),
-    path('/hook', v.monobank_webhook_response)
+    path('integration', v.registration),
+    path('hook', v.monobank_webhook_response),
+    path('discharge', v.get_discharge),
 ]
