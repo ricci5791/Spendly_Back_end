@@ -5,8 +5,6 @@ class User(models.Model):
     email = models.EmailField(max_length=50, primary_key=True)
     password = models.CharField(max_length=30)
 
-    def get_
-
 
 class Account(models.Model):
     acc_id = models.IntegerField(primary_key=True)
@@ -24,5 +22,3 @@ class Transaction(models.Model):
     amount = models.IntegerField()
     merchant_category_code = models.IntegerField()
     currency_code = models.IntegerField()
-
-
