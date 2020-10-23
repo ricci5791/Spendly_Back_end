@@ -10,10 +10,10 @@ MONOBANK_URL = 'https://api.monobank.ua/personal/'
 
 def main_view(request):
     return HttpResponse(
-        "<html><body>Hello motherfakers. If you see this text i haven't wasted 3 hours of reading</body></html>")
+        "<html><body>Test</body></html>")
 
 
-def registration(request):
+def init_request(request):
     user_token = request.GET.get('token')
     req_email = request.GET.get("email")
     req_password = request.GET.get("password")
@@ -36,7 +36,7 @@ def registration(request):
 def monobank_webhook_response(request):
     try:
         response = json.loads(request.body)
-    except AttributeError:
+    except json.JSONDecodeError:
         response = request
 
     trans = response['data']['statementItem']
@@ -59,3 +59,30 @@ def get_discharge(request):
         monobank_webhook_response(trans)
 
     return HttpResponse(mono_discharge_response)
+
+
+def register(request):
+    data = json.loads(request.body)
+
+    x_token = request.headers['X-Token']
+
+    mono_get_client_info = http.get(MONOBANK_URL + "client-info",
+                                    headers={"X-Token": x_token})  # data['mono-response']
+
+    if not mono_get_client_info.ok:
+        return HttpResponse(status=mono_get_client_info.status_code)
+
+    user = m.User(email=data['email'], password=data['password'])
+
+    accounts_list = []
+
+    for account_data in mono_get_client_info.json()['accounts']:
+        account = m.Account(acc_id=account_data['id'], currency_code=account_data['currencyCode'],
+                            balance=account_data['balance'], user_id=user.email)
+        accounts_list.append(account)
+
+    user.save()
+    for item in accounts_list:
+        item.save()
+
+    return HttpResponse(status=mono_get_client_info.status_code)
