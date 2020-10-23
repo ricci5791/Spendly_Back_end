@@ -14,12 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from spendly_api import views as v
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', v.main_view),
-    path('/integration', v.init_response),
-    path('/hook', v.monobank_webhook_response)
+    path('api/', include('spendly_api.urls'))
 ]
