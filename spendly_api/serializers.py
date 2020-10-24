@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from .models import Transaction, Account
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,6 +30,18 @@ class UserSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     credential = serializers.CharField()
     password = serializers.CharField(min_length=6)
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        exclude = ['id']
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['acc_id', 'user_id', 'acc_type', 'currency_code']
 
 
 @receiver(post_save, sender=User)

@@ -7,10 +7,11 @@ class User(models.Model):
 
 
 class Account(models.Model):
-    acc_id = models.IntegerField(primary_key=True)
+    acc_id = models.CharField(max_length=50, primary_key=True)
     user = models.ForeignKey('spendly_api.User', on_delete=models.CASCADE)
     currency_code = models.IntegerField()
     acc_type = models.CharField(max_length=10)
+    balance = models.PositiveIntegerField(default=0)
 
 
 class Transaction(models.Model):
