@@ -88,7 +88,7 @@ class MonobankWebhookView(APIView):
 
 def monobank_set_hook(request):
     response = requests.post(MONOBANK_URL + "webhook",
-                             json={"webhook": "https://spendly-student.herokuapp.com/api/webhook"},
+                             json={"webHookUrl": "https://spendly-student.herokuapp.com/api/webhook"},
                              headers={"X-Token": request.headers["X-Token"]})
 
     if response.ok:
