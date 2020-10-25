@@ -4,12 +4,15 @@ from rest_framework.authtoken.views import obtain_auth_token
 import spendly_api.views as views
 
 urlpatterns = [
-    path('setwebhook/', views.monobank_set_hook),
+
+    path('login', obtain_auth_token),
+    path('register', views.UserRegistrationView.as_view()),
+
+    path('webhook/set', views.MonobankIntegrationView.as_view()),
     path('webhook', views.MonobankWebhookView.as_view()),
-    path('login/', obtain_auth_token),
-    path('register/', views.UserRegistrationView.as_view()),
-    path('usersinfo/', views.UserInformationView.as_view()),
-    path('transactionsinfo/', views.TransactionInfoView.as_view()),
-    path('accountinfo/<str:user_id>', views.AccountInfoView.as_view()),
-    path('accountinfo/', views.AccountInfoView.as_view()),
+
+    path('user/info', views.UserInformationView.as_view()),
+
+    path('user/transactions', views.UserTransactionsView.as_view()),
+    path('user/accounts', views.UserAccountsView.as_view()),
 ]
