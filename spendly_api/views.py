@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 import spendly_api.serializers as serializers
 from .models import Transaction, Account, User
+from django.http import HttpResponse
 
 MONOBANK_URL = 'https://api.monobank.ua/personal/'
 
@@ -91,6 +92,6 @@ def monobank_set_hook(request):
                              headers={"X-Token": request.headers["X-Token"]})
 
     if response.ok:
-        return Response(status=response.status_code)
+        return HttpResponse(status=response.status_code)
 
-    return Response(response.json(), status=response.status_code)
+    return HttpResponse(response.json(), status=response.status_code)
