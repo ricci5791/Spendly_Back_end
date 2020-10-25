@@ -32,16 +32,31 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=6)
 
 
-class TransactionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Transaction
-        fields = '__all__'
-
-
 class AccountSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(queryset=User.objects.all(),
+                                        slug_field='email',
+                                        many=False)
     class Meta:
         model = Account
-        fields = '__all__'
+        fields = ['user',
+                  'id',
+                  'balance',
+                  'currency_code',
+                  'type']
+
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    account = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all(), many=False)
+    class Meta:
+        model = Transaction
+        fields = ['account',
+                  'time',
+                  'description',
+                  'mcc',
+                  'amount',
+                  'currency_code',
+                  'balance']
 
 
 @receiver(post_save, sender=User)
