@@ -35,13 +35,13 @@ class LoginSerializer(serializers.Serializer):
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = ['__all__']
+        fields = '__all__'
 
 
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['__all__']
+        fields = '__all__'
 
 
 @receiver(post_save, sender=User)

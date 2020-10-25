@@ -1,13 +1,15 @@
 from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
-from rest_framework.urlpatterns import format_suffix_patterns
 
-from spendly_api.views import UserInformationView, UserRegistrationView, TransactionInfoView, AccountInfoView
+import spendly_api.views as views
 
 urlpatterns = [
+    path('setwebhook/', views.monobank_set_hook),
+    path('webhook/', views.MonobankWebhookView.as_view()),
     path('login/', obtain_auth_token),
-    path('register/', UserRegistrationView.as_view()),
-    path('userinfo/', UserInformationView.as_view()),
-    path('transactionsinfo/', TransactionInfoView.as_view()),
-    path('accountinfo/', AccountInfoView.as_view()),
+    path('register/', views.UserRegistrationView.as_view()),
+    path('usersinfo/', views.UserInformationView.as_view()),
+    path('transactionsinfo/', views.TransactionInfoView.as_view()),
+    path('accountinfo/<str:user_id>', views.AccountInfoView.as_view()),
+    path('accountinfo/', views.AccountInfoView.as_view()),
 ]

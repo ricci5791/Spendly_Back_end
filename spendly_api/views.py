@@ -1,14 +1,10 @@
-import requests as http
-import json
-from spendly_api import models as m
-from django.http import HttpResponse
+import requests
 from rest_framework import status
-from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from spendly_api.serializers import UserSerializer, TransactionSerializer, AccountSerializer
-from .models import Transaction, Account
+import spendly_api.serializers as serializers
+from .models import Transaction, Account, User
 
 MONOBANK_URL = 'https://api.monobank.ua/personal/'
 
@@ -18,7 +14,7 @@ class UserInformationView(APIView):
 
     def get(self, request):
         user = request.user
-        serializer = UserSerializer(user, many=False)
+        serializer = serializers.UserSerializer(user, many=False)
         return Response(serializer.data)
 
 
@@ -33,9 +29,10 @@ class UserRegistrationView(APIView):
         return Response(data=example_data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = serializers.UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            User.objects.create(request.data['username'])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -43,12 +40,12 @@ class UserRegistrationView(APIView):
 class TransactionInfoView(APIView):
     def get(self, request):
         transactions = Transaction.objects.all()
-        serializer = TransactionSerializer(transactions, many=True)
+        serializer = serializers.TransactionSerializer(transactions, many=True)
         return Response(serializer.data, status=200)
 
     def post(self, request):
-        data = JSONParser.parse(request)
-        serializer = TransactionSerializer(data=data)
+        data = request.data
+        serializer = serializers.TransactionSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=200)
@@ -56,34 +53,44 @@ class TransactionInfoView(APIView):
 
 
 class AccountInfoView(APIView):
-    def get(self, request):
-        accounts = Account.objects.filter(user_id=request.GET.get('email'))
-        print(request.data)
-        serializer = AccountSerializer(accounts, many=True)
+    def get(self, request, user_id=None):
+        if id is not None:
+            accounts = Account.objects.filter(user_id=user_id)
+        else:
+            accounts = Account.objects.all()
+        serializer = serializers.AccountSerializer(accounts, many=True)
         return Response(serializer.data, status=200)
 
     def post(self, request):
-        data = JSONParser.parse(request)
-        serializer = AccountSerializer(data=data)
+        data = request.data
+        serializer = serializers.AccountSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
 
 
-def init_request(request):
-    user_token = request.GET.get('token')
-    email = request.GET.get("email")
-    password = request.GET.get("password")
-    # TODO: add model logics to check user credentials
+class MonobankWebhookView(APIView):
+    def post(self, request):
+        data = request.data['data']
+        trans_info = data['statementItem']
+        trans_info.update({"account": data['account']})
+        serializer = serializers.TransactionSerializer(data=trans_info)
+        print(trans_info)
 
-    url = 'https://spendly-student.herokuapp.com/hook'
+        if serializer.is_valid():
+            serializer.save()
+            print("saved")
+        print(serializer.errors)
+        return Response(status=200)
 
-    https.post(mono_url, json={"webHookUrl": url}, headers={"X-Token": user_token})
 
-    return HttpResponse()
+def monobank_set_hook(request):
+    response = requests.post(MONOBANK_URL + "webhook",
+                             json={"webhook": "https://spendly-student.herokuapp.com/api/webhook"},
+                             headers={"X-Token": request.headers["X-Token"]})
 
+    if response.ok:
+        return Response(status=response.status_code)
 
-def monobank_webhook_response(request):
-    # TODO:
-    return None
+    return Response(response.json(), status=response.status_code)

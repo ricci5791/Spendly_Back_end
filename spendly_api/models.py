@@ -1,9 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import User as DUser
 
 
-class User(DUser):
-    pass
+class User(models.Model):
+    username = models.CharField(primary_key=True, max_length=50, default="test")
 
 
 class Account(models.Model):
@@ -12,7 +11,7 @@ class Account(models.Model):
     creditLimit = models.PositiveIntegerField(default=0)
     currency_code = models.IntegerField(default=980)
     cashbackType = models.CharField(max_length=10, default=0)
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    user = models.ForeignKey('spendly_api.User', on_delete=models.CASCADE)
 
 
 class Transaction(models.Model):
