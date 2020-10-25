@@ -5,7 +5,7 @@ import spendly_api.views as views
 
 urlpatterns = [
     path('setwebhook/', views.monobank_set_hook),
-    path('webhook/', views.MonobankWebhookView.as_view()),
+    path('webhook', views.MonobankWebhookView.as_view()),
     path('login/', obtain_auth_token),
     path('register/', views.UserRegistrationView.as_view()),
     path('usersinfo/', views.UserInformationView.as_view()),
