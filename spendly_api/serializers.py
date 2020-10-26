@@ -36,18 +36,25 @@ class AccountSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(queryset=User.objects.all(),
                                         slug_field='email',
                                         many=False)
+
+    # To deal with camel case in responses
+    currencyCode = serializers.IntegerField(source='currency_code')
+
     class Meta:
         model = Account
         fields = ['user',
                   'id',
                   'balance',
-                  'currency_code',
+                  'currencyCode',
                   'type']
-
 
 
 class TransactionSerializer(serializers.ModelSerializer):
     account = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all(), many=False)
+
+    # To deal with camel case in responses
+    currencyCode = serializers.IntegerField(source='currency_code')
+
     class Meta:
         model = Transaction
         fields = ['account',
@@ -55,7 +62,7 @@ class TransactionSerializer(serializers.ModelSerializer):
                   'description',
                   'mcc',
                   'amount',
-                  'currency_code',
+                  'currencyCode',
                   'balance']
 
 
