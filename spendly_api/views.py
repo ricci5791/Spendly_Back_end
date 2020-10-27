@@ -64,10 +64,11 @@ class MonobankIntegrationView(APIView):
         user = request.user
         monobank_token = request.data["X-Token"]
 
-        self.fetch_accounts(user=user, monobank_token=monobank_token)
-        self.set_monobank_webhook(monobank_token=monobank_token)
+        if self.fetch_accounts(user=user, monobank_token=monobank_token):
+            self.set_monobank_webhook(monobank_token=monobank_token)
+            return Response(status=200)
 
-        return Response(status=200)
+        return Response(status=400)
 
     def fetch_accounts(self, monobank_token, user):
         accounts_request_headers = {
@@ -88,6 +89,8 @@ class MonobankIntegrationView(APIView):
             account_serializer = serializers.AccountSerializer(data=accounts, many=True)
             if account_serializer.is_valid():
                 account_serializer.save()
+            return True
+        return False
 
 
     def set_monobank_webhook(self, monobank_token):
