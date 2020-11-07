@@ -13,5 +13,6 @@ urlpatterns = [
 
     path('user/info/', views.UserInformationView.as_view()),
     path('user/transactions/', views.UserTransactionsView.as_view()),
+    path('user/cash_transaction/', views.CashTransactionView.as_view()),
     path('user/accounts/', views.UserAccountsView.as_view()),
 ]

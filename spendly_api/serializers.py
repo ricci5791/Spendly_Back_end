@@ -66,6 +66,17 @@ class TransactionSerializer(serializers.ModelSerializer):
                   'balance']
 
 
+class CashTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = [
+            'time',
+            'description',
+            'mcc',
+            'amount',
+        ]
+
+
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:

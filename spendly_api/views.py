@@ -92,7 +92,6 @@ class MonobankIntegrationView(APIView):
             return True
         return False
 
-
     def set_monobank_webhook(self, monobank_token):
         set_webhook_request_json = {
             "webHookUrl": "https://spendly-student.herokuapp.com/api/webhook"
@@ -127,6 +126,59 @@ class MonobankWebhookView(APIView):
             pass
 
 
+class CashTransactionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        account = self.get_or_create_cash_account(user=user)
+
+        data = request.data
+        amount = request.data['amount']
+        data.update({
+            'account': account.id,
+            'currencyCode': 980,
+            'balance': account.balance + amount
+        })
+        serializer = serializers.TransactionSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=200)
+
+        return Response(status=400)
+
+    def delete(self, request):
+        user = request.user
+        account = self.get_or_create_cash_account(user=user)
+        time = request.data['time'] if request.data['time'] is not None else 0
+        transactions = Transaction.objects.all().filter(account=account)
+        transaction = transactions.filter(time=time)
+
+        if transaction.exists():
+            transaction.first().delete()
+            return Response(status=200)
+
+        return Response(status=400)
+
+
+    def get_or_create_cash_account(self, user):
+        user_email = user.email
+        account_id = f'{user_email}-cash'
+        cash_account = Account.objects.all().filter(id=account_id)
+        if cash_account.exists():
+            print(cash_account.first())
+            return cash_account.first()
+        else:
+            account = Account(
+                id=account_id,
+                user=user,
+                balance=0,
+                currency_code=980,
+                type='Cash'
+            )
+            print(account)
+            account.save()
+            return account
 
 
 def monobank_set_hook(request):
