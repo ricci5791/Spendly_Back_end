@@ -149,7 +149,7 @@ class CashTransactionView(APIView):
 
     def delete(self, request):
         user = request.user
-        time = request.data['time'] if request.data['time'] is not None else 0
+        time = request.headers['time'] if request.headers['time'] is not None else 0
         transactions = Transaction.objects.all(user=user)
         transaction = transactions.filter(time=time)
 
