@@ -8,6 +8,7 @@ from rest_framework import filters
 import spendly_api.serializers as serializers
 from .models import Transaction, Account
 from django.http import HttpResponse
+import django_filters.rest_framework
 
 MONOBANK_URL = 'https://api.monobank.ua/personal/'
 
@@ -42,9 +43,10 @@ class UserRegistrationView(APIView):
 class UserTransactionsView(ListAPIView):
     serializer_class = serializers.TransactionSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [filters.OrderingFilter,
+                       django_filters.rest_framework.DjangoFilterBackend]
     ordering_fields = ['time', 'amount']
-
+    filterset_fields = ['mcc', 'account']
     def get_queryset(self):
         user = self.request.user
         transactions = Transaction.objects.all().filter(account__user=user)
