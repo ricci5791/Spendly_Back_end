@@ -3,6 +3,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
+from rest_framework import filters
 import spendly_api.serializers as serializers
 from .models import Transaction, Account
 from django.http import HttpResponse
@@ -37,14 +39,16 @@ class UserRegistrationView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserTransactionsView(APIView):
+class UserTransactionsView(ListAPIView):
+    serializer_class = serializers.TransactionSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['time', 'amount']
 
-    def get(self, request):
-        user = request.user
+    def get_queryset(self):
+        user = self.request.user
         transactions = Transaction.objects.all().filter(account__user=user)
-        serializer = serializers.TransactionSerializer(transactions, many=True)
-        return Response(serializer.data, status=200)
+        return transactions
 
 
 class UserAccountsView(APIView):
