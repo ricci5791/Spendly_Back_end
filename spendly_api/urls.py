@@ -15,4 +15,5 @@ urlpatterns = [
     path('user/transactions/', views.UserTransactionsView.as_view()),
     path('user/cash_transaction/', views.CashTransactionView.as_view()),
     path('user/accounts/', views.UserAccountsView.as_view()),
+    path('user/statistics', views.UserStatistics.as_view())
 ]
