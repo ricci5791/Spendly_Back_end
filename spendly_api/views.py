@@ -9,6 +9,7 @@ import spendly_api.serializers as serializers
 from .models import Transaction, Account
 from django.http import HttpResponse
 import django_filters.rest_framework
+from .user_statistics import Stats
 
 MONOBANK_URL = 'https://api.monobank.ua/personal/'
 
@@ -186,6 +187,12 @@ class CashTransactionView(APIView):
             return account
 
 
+class UserStatistics(APIView):
+    def get(self, request):
+        user_stats = Stats(request.user)
+        return Response(data=user_stats.get_total_by_mcc(), status=200)
+
+
 def monobank_set_hook(request):
     response = requests.post(MONOBANK_URL + "webhook",
                              json={"webHookUrl": "https://spendly-student.herokuapp.com/api/webhook"},
@@ -193,3 +200,5 @@ def monobank_set_hook(request):
     if response.ok:
         return HttpResponse(status=response.status_code)
     return HttpResponse(response.json(), status=response.status_code)
+
+
