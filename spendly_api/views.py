@@ -1,4 +1,5 @@
 import requests
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -21,6 +22,15 @@ class UserInformationView(APIView):
         user = request.user
         serializer = serializers.UserSerializer(user, many=False)
         return Response(serializer.data)
+
+    def post(self, request):
+        user_email = request.user.email
+        user = User.objects.all().get(email=user_email)
+        password = request.data['password']
+        user.set_password(password)
+        user.save()
+
+
 
 
 class UserRegistrationView(APIView):
