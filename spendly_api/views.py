@@ -29,6 +29,7 @@ class UserInformationView(APIView):
         password = request.data['password']
         user.set_password(password)
         user.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 
