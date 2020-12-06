@@ -48,6 +48,7 @@ class UserTransactionsView(ListAPIView):
                        django_filters.rest_framework.DjangoFilterBackend]
     ordering_fields = ['time', 'amount']
     filterset_fields = ['mcc', 'account']
+
     def get_queryset(self):
         user = self.request.user
         transactions = Transaction.objects.all().filter(account__user=user)
@@ -166,7 +167,6 @@ class CashTransactionView(APIView):
 
         return Response(status=400)
 
-
     def get_or_create_cash_account(self, user):
         user_email = user.email
         account_id = f'{user_email}-cash'
@@ -193,12 +193,17 @@ class UserStatistics(APIView):
         return Response(data=user_stats.get_total_by_mcc(), status=200)
 
 
-def monobank_set_hook(request):
-    response = requests.post(MONOBANK_URL + "webhook",
-                             json={"webHookUrl": "https://spendly-student.herokuapp.com/api/webhook"},
-                             headers={"X-Token": request.headers["X-Token"]})
-    if response.ok:
-        return HttpResponse(status=response.status_code)
-    return HttpResponse(response.json(), status=response.status_code)
+class UserInfoApi(APIView):
+    def get(self, request):
+        user = request.user
 
+        user_serializer = serializers.UserSerializer(user)
 
+        return Response(data=user_serializer, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = serializers.UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
